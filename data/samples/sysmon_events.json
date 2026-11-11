@@ -1,0 +1,62 @@
+[
+  {
+    "EventID": 1,
+    "EventRecordID": "simulated-001",
+    "UtcTime": "2026-11-03T09:00:00Z",
+    "Computer": "SIMULATED-WIN01",
+    "User": "analyst@example.test",
+    "ProcessGuid": "{SIMULATED-0001}",
+    "ProcessId": 1001,
+    "ParentImage": "C:\\Windows\\explorer.exe",
+    "ParentProcessGuid": "{SIMULATED-PARENT}",
+    "ParentProcessId": 900,
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "CommandLine": "powershell.exe -Command Get-Date",
+    "RuleName": "Simulated normal PowerShell test event"
+  },
+  {
+    "EventID": 1,
+    "EventRecordID": "simulated-002",
+    "UtcTime": "2026-11-03T09:01:00Z",
+    "Computer": "SIMULATED-WIN01",
+    "User": "analyst@example.test",
+    "ProcessGuid": "{SIMULATED-0002}",
+    "ProcessId": 1002,
+    "ParentImage": "C:\\Windows\\explorer.exe",
+    "ParentProcessGuid": "{SIMULATED-PARENT}",
+    "ParentProcessId": 900,
+    "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "CommandLine": "powershell.exe -EncodedCommand SIMULATED_PAYLOAD",
+    "RuleName": "Simulated encoded PowerShell test event"
+  },
+  {
+    "EventID": 1,
+    "EventRecordID": "simulated-003",
+    "UtcTime": "2026-11-03T09:02:00Z",
+    "Computer": "SIMULATED-WIN01",
+    "User": "analyst@example.test",
+    "ProcessGuid": "{SIMULATED-0003}",
+    "ProcessId": 1003,
+    "ParentImage": "C:\\Windows\\explorer.exe",
+    "ParentProcessGuid": "{SIMULATED-PARENT}",
+    "ParentProcessId": 900,
+    "Image": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "CommandLine": "pwsh.exe -NoProfile -WindowStyle Hidden -EncodedCommand SIMULATED_PAYLOAD https://example.test/simulated",
+    "RuleName": "Simulated multi-indicator PowerShell test event"
+  },
+  {
+    "EventID": 1,
+    "EventRecordID": "simulated-004",
+    "UtcTime": "2026-11-03T09:03:00Z",
+    "Computer": "SIMULATED-WIN01",
+    "User": "analyst@example.test",
+    "ProcessGuid": "{SIMULATED-0004}",
+    "ProcessId": 1004,
+    "ParentImage": "C:\\Windows\\explorer.exe",
+    "ParentProcessGuid": "{SIMULATED-PARENT}",
+    "ParentProcessId": 900,
+    "Image": "C:\\Windows\\System32\\notepad.exe",
+    "CommandLine": "notepad.exe C:\\Temp\\notes.txt",
+    "RuleName": "Simulated unrelated process test event"
+  }
+]
