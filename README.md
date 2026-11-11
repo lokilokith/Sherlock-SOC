@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SHERLOCK — AI-Assisted SOC Investigation Platform
 
 **From Security Telemetry to Evidence-Grounded Investigations.**
@@ -331,3 +332,7 @@ and accuracy. Runs are stored as report JSON in a separate validation-history ta
 the workflow does not import events, create alerts, invoke agents, or alter detection
 rules. Results describe the labelled synthetic set only and are not a claim of
 real-world detection performance.
+=======
+# Sherlock-SOC
+AI-assisted SOC platform featuring behavioural threat detection, MITRE ATT&amp;CK mapping, multi-agent investigation, threat intelligence, digital forensics, evidence graphs, attack storyline reconstruction, and detection validation.
+>>>>>>> origin/main

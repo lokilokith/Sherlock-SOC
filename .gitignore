@@ -1,16 +1,29 @@
+
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.so
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.pyre/
+.pytype/
+.dmypy.json
 .coverage
+.coverage.*
 htmlcov/
+.tox/
+.nox/
+.hypothesis/
 .venv/
 venv/
 env/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
 
 # Node.js
 node_modules/
@@ -26,10 +39,15 @@ build/
 .env
 .env.*
 !.env.example
+.envrc
+.pypirc
 
 # IDE and editor files
 .vscode/
 .idea/
+.spyderproject
+.spyproject
+.ropeproject
 *.swp
 *.swo
 
@@ -38,6 +56,7 @@ build/
 logs/
 tmp/
 temp/
+tempCodeRunnerFile.py
 
 # Generated and local data
 data/generated/
@@ -45,13 +64,16 @@ data/local/
 *.sqlite
 *.sqlite3
 *.db
+*.rdb
+*.aof
 
 # TypeScript generated files
 *.tsbuildinfo
 
-# Python test and coverage artifacts
-.coverage.*
-
-# Unwanted generated or temporary files
+# Project-specific temporary files
 0.26.0
 frontend/vite.config.d.ts
+
+# OS files
+.DS_Store
+Thumbs.db
