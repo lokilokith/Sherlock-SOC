@@ -1,338 +1,414 @@
-<<<<<<< HEAD
-# SHERLOCK — AI-Assisted SOC Investigation Platform
+# SHERLOCK SOC
+### AI-Assisted SOC Investigation Platform
 
-**From Security Telemetry to Evidence-Grounded Investigations.**
+**A security investigation platform for Windows endpoint telemetry, behavioral detection, and evidence-based alert analysis.**
 
-SHERLOCK is a security operations investigation platform that combines
-deterministic Sysmon detection with specialized AI-assisted triage, forensic
-analysis, and threat intelligence workflows. It correlates persisted security
-evidence, produces explainable investigation results, and keeps the analyst in
-control.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi" alt="FastAPI">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite" alt="SQLite">
+  <img src="https://img.shields.io/badge/MITRE-ATT%26CK-C8102E" alt="MITRE ATT&CK">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+</p>
 
-## Security boundary
+SHERLOCK SOC processes Sysmon telemetry, identifies suspicious endpoint activity, and provides analysts with structured investigation reports.
 
-Unauthenticated public demo access is read-only. Event import and specialist/investigation execution require an analyst session configured through `SHERLOCK_ANALYST_PASSWORD`. See [docs/SECURITY-LIMITATIONS.md](docs/SECURITY-LIMITATIONS.md).
+The platform combines deterministic Python detection rules with optional AI-assisted analysis. Its investigation workflow uses Triage, Forensics, and Threat Intelligence components, with evidence validation to check findings against stored telemetry.
 
-## Release documentation
+The objective is to make alert investigation more structured, traceable, and easier to review.
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Deployment](docs/DEPLOYMENT.md)
-- [Demo script](docs/DEMO-SCRIPT.md)
-- [Technical decisions](docs/TECHNICAL-DECISIONS.md)
-- [Security limitations](docs/SECURITY-LIMITATIONS.md)
-- [Interview Q&A](docs/INTERVIEW-QA.md)
+> **Project status:** Local, single-instance security research prototype. Designed for experimentation and demonstration, not production enterprise SOC deployment.
+
+---
+
+## Screenshots
+
+<p align="center">
+  <strong>Operations Dashboard</strong><br>
+  <img src="docs/screenshots/release-overview.png" alt="SHERLOCK SOC Dashboard" width="95%">
+</p>
+
+<p align="center">
+  <strong>Investigation Workspace</strong><br>
+  <img src="docs/screenshots/investigation-workspace.png" alt="Investigation Workspace" width="95%">
+</p>
+
+<p align="center">
+  <strong>Security Alerts</strong><br>
+  <img src="docs/screenshots/release-alerts.png" alt="Security Alerts" width="95%">
+</p>
+
+<p align="center">
+  <strong>AI Investigation Agents</strong><br>
+  <img src="docs/screenshots/release-agents.png" alt="Investigation Agents" width="95%">
+</p>
+
+---
+
+## Core Features
+
+| Component | Functionality |
+|---|---|
+| Telemetry Ingestion | Import, validate, normalize, and store Sysmon JSON events |
+| Detection Engine | Identify suspicious process execution and network activity |
+| AI-Assisted Investigation | Triage, forensic analysis, and threat-intelligence workflows |
+| Evidence Validation | Validate investigation references against stored events |
+| Threat Intelligence | Enrich indicators using external reputation providers |
+| MITRE ATT&CK | Map detection rules to relevant techniques |
+| SOC Workbench | Explore alerts, timelines, evidence relationships, and IOCs |
+| Detection Validation | Evaluate detection logic against synthetic test cases |
+| Access Control | Local analyst accounts, role-based access, and session management |
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-  S[Sysmon JSON] --> N[FastAPI + Pydantic normalization]
-  N --> D[Deterministic detection engine]
-  D --> A[Alert generation]
-  N --> DB[(Analyst SQLite)]
-  A --> DB
-  DB --> C[Investigation coordinator]
-  C --> T[Triage Agent]
-  C --> F[Forensics Agent]
-  C --> TI[Threat Intelligence Agent]
-  T --> R[Evidence-grounded unified report]
-  F --> R
-  TI --> R
-  R --> UI[React/Vite dashboard]
-  PUB[Unauthenticated read-only demo] --> DEMO[(Separate synthetic demo SQLite)]
-  DEMO --> UI
-  AUTH[HttpOnly analyst session] -. protects .-> DB
+flowchart TD
+    A["Sysmon JSON Telemetry"] --> B["FastAPI Ingestion"]
+    B --> C["Validation and Normalization"]
+    C --> D[("SQLite Database")]
+    C --> E["Detection Engine"]
+
+    E --> F["Security Alerts"]
+    F --> G["Investigation Coordinator"]
+
+    G --> H["Triage Agent"]
+    G --> I["Forensics Agent"]
+    G --> J["Threat Intelligence Agent"]
+
+    J --> K["External TI Providers"]
+
+    H --> L["Evidence Validation"]
+    I --> L
+    J --> L
+
+    L --> M["Investigation Report"]
+    M --> D
+
+    D --> N["FastAPI REST API"]
+    N --> O["React Dashboard"]
 ```
 
-The AI services receive only persisted alert-associated evidence. They cannot
-execute shell commands, modify the database directly, or perform remediation.
-The deterministic detection engine remains authoritative for rule matches.
+Detection and investigation are separate stages. Python rules determine whether an event matches suspicious behavior; the investigation components analyze the resulting alert and its available evidence.
 
-## Features
+### Technology Stack
 
-- Sysmon-style JSON ingestion with per-record validation errors.
-- Raw payload preservation and stable event identifiers.
-- Duplicate event and alert prevention.
-- Transparent SOC-001 suspicious PowerShell detection.
-- SQLite persistence through SQLAlchemy.
-- Structured Triage, Forensics, and Threat Intelligence results.
-- Evidence-reference validation for event IDs and source fields.
-- Deterministic coordinator with ordered execution and partial-failure status.
-- React SOC dashboard with alert, investigation, IOC, and event views.
-- Local analyst password recovery without a public reset endpoint.
+| Layer | Technologies |
+|---|---|
+| Backend | Python 3.12, FastAPI, Uvicorn |
+| Validation and ORM | Pydantic 2, SQLAlchemy 2 |
+| Frontend | React 18, TypeScript 5.7, Vite 6 |
+| Database | SQLite |
+| AI Orchestration | CrewAI |
+| Styling and Charts | Tailwind CSS, Recharts |
+| Threat Intelligence | VirusTotal, AbuseIPDB, AlienVault OTX, GreyNoise, URLhaus |
+| Security Framework | MITRE ATT&CK |
+| Testing and CI | Pytest, HTTPX, GitHub Actions |
 
-## Screenshots
+---
 
-- [Overview](docs/screenshots/release-overview.png)
-- [Security Alerts](docs/screenshots/release-alerts.png)
-- [Alert Details](docs/screenshots/release-alert-details.png)
-- [Investigation Workspace](docs/screenshots/investigation-workspace.png)
-- [AI Agents](docs/screenshots/release-agents.png)
-- [Threat Intelligence](docs/screenshots/release-threat-intelligence.png)
-- [Event Explorer](docs/screenshots/release-events.png)
-- [Settings](docs/screenshots/release-settings.png)
-- [Settings mobile viewport](docs/screenshots/release-settings-mobile.png)
+## Detection Engineering
 
-## Technology
+SHERLOCK currently implements three behavioral detection rules.
 
+| Rule ID | Detection | MITRE ATT&CK |
+|---|---|---|
+| SOC-001 | Suspicious PowerShell Execution | T1059.001 |
+| SOC-002 | Office Application Spawning Command Shell | T1059.003, T1204.002 |
+| SOC-003 | Scripting Interpreter Outbound Connection | T1059.001, T1071.001 |
+
+**Telemetry currently supported:**
+
+- Sysmon Event ID 1 – Process Creation
+- Sysmon Event ID 3 – Network Connection
+
+The detection engine evaluates process paths, command-line arguments, parent-child relationships, and associated network activity.
+
+SOC-003 performs correlation between process-creation and network-connection events within the same import batch.
+
+### Detection Validation
+
+The Validation Lab evaluates SOC-001 against 32 labelled synthetic process-creation cases.
+
+It calculates:
+
+- Precision and Recall
+- F1-score and Accuracy
+- Specificity
+- Confusion Matrix
+
+Results can be exported in JSON and Markdown formats.
+
+These measurements represent performance on the project's synthetic dataset, not real-world detection effectiveness.
+
+---
+
+## AI-Assisted Investigation
+
+Investigation is coordinated through a deterministic Python workflow involving three specialist components.
+
+| Component | Responsibility |
+|---|---|
+| Triage Agent | Reviews alert context and explains detection findings |
+| Forensics Agent | Analyzes event relationships and reconstructs timelines |
+| Threat Intelligence Agent | Extracts indicators and retrieves reputation information |
+
+The coordinator executes the workflow sequentially, validates structured outputs, tracks execution status, and generates a unified investigation report.
+
+### Evidence Validation
+
+Investigation results are checked against persisted telemetry using:
+
+- Pydantic schema validation.
+- Event ID and field-reference validation.
+- Process relationship checks.
+- Chronological timeline validation.
+- Agent execution and failure tracking.
+
+Findings are categorized as observed facts, hypotheses, reputation information, or unknowns.
+
+### Operating Modes
+
+Configure the mode using `SHERLOCK_AGENT_MODE`.
+
+| Mode | Description |
+|---|---|
+| `demo` | Uses deterministic agent responses without LLM or external threat-intelligence calls. |
+| `live` | Enables configured threat-intelligence integrations and optional CrewAI-backed Triage and Forensics analysis. |
+
+If the LLM configuration is unavailable, the relevant agents fall back to deterministic implementations.
+
+AI-generated findings are intended to assist analysts, not replace human investigation or determine detection outcomes.
+
+---
+
+## Threat Intelligence
+
+SHERLOCK supports IOC extraction and reputation enrichment for:
+
+- IPv4 and IPv6 addresses
+- Domains and URLs
+- MD5, SHA-1, and SHA-256 hashes
+
+### Supported Providers
+
+| Provider | Purpose |
+|---|---|
+| [VirusTotal](https://www.virustotal.com/) | Multi-engine reputation analysis |
+| [AbuseIPDB](https://www.abuseipdb.com/) | IP reputation |
+| [AlienVault OTX](https://otx.alienvault.com/) | Threat intelligence pulses |
+| [GreyNoise](https://www.greynoise.io/) | Internet scanning context |
+| [URLhaus](https://urlhaus.abuse.ch/) | Malicious URL intelligence |
+
+The implementation includes in-process caching, rate limiting, and provider-specific lookup handling.
+
+**Note:** VirusTotal is used for automatic investigation enrichment when configured. The current AbuseIPDB automatic-enrichment integration has a known provider import issue; manual lookup remains available.
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
+- Windows 10/11
 - Python 3.12
-- FastAPI, Pydantic, SQLAlchemy, SQLite
-- CrewAI integration for optional configured LLM execution
-- React 18, TypeScript, Vite, Tailwind CSS
-- React Router, Recharts, Lucide React
-
-## Folder structure
-
-```text
-backend/
-  app/
-    core/          configuration
-    persistence/   SQLAlchemy models and repositories
-    schemas/       validated API and investigation models
-    services/      ingestion, detection, agents, coordinator
-  tests/
-frontend/
-  src/
-    components/    reusable dashboard UI
-    hooks/         data-loading hooks
-    pages/         dashboard routes
-    services/      typed API client
-    types/         backend response types
-data/
-  samples/         sanitized simulated Sysmon data
-```
-
-## Prerequisites
-
-- Windows 11 PowerShell
-- Python 3.12
-- Node.js and npm
+- Node.js 20
+- npm
 - Git
 
-## Installation
+### 1. Clone the Repository
+
+```powershell
+git clone https://github.com/lokilokith/Sherlock-SOC.git
+
+cd Sherlock-SOC
+```
+
+### 2. Set Up the Backend
+
+```powershell
+py -3.12 -m venv .venv
+
+& .\.venv\Scripts\python.exe -m pip install --upgrade pip
+
+& .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+```
+
+### 3. Configure Environment Variables
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edit `.env` and configure the required settings. External API keys are optional for demo mode.
+
+### 4. Create an Administrator Account
+
+```powershell
+cd backend
+
+& ..\.venv\Scripts\python.exe -m app.cli bootstrap-admin --username admin
+```
+
+Enter your administrator password when prompted. The password must contain at least 12 characters.
+
+### 5. Start the Backend
+
+Run from the `backend` directory:
+
+```powershell
+& ..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
+```
+
+### 6. Start the Frontend
+
+Open another terminal from the repository root:
+
+```powershell
+cd frontend
+
+npm ci
+
+npm run dev -- --host 127.0.0.1
+```
+
+### 7. Access the Application
+
+| Service | URL |
+|---|---|
+| Dashboard | http://127.0.0.1:5173 |
+| Backend | http://127.0.0.1:8001 |
+| API Documentation | http://127.0.0.1:8001/docs |
+| Health Check | http://127.0.0.1:8001/health |
+
+Unauthenticated users are served synthetic demo data. Sign in using the administrator account to access analyst operations.
+
+### 8. Import Sample Telemetry
+
+With the backend running, open PowerShell from the repository root:
+
+```powershell
+$base = "http://127.0.0.1:8001"
+
+$creds = @{
+    username = "admin"
+    password = (Read-Host "Password")
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    "$base/api/v1/auth/login" `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $creds `
+    -SessionVariable session | Out-Null
+
+$sample = Get-Content ".\data\samples\sysmon_events.json" -Raw
+
+Invoke-RestMethod `
+    "$base/api/v1/events/import" `
+    -Method Post `
+    -ContentType "application/json" `
+    -Body $sample `
+    -WebSession $session
+```
+
+Imported events are processed by the detection engine. Generated alerts can then be reviewed and investigated through the dashboard.
+
+---
+
+## Configuration
+
+The main environment settings are defined in `.env.example`.
+
+| Variable | Purpose |
+|---|---|
+| `APP_ENV` | Application environment |
+| `SHERLOCK_DATABASE_URL` | Analyst database |
+| `SHERLOCK_DEMO_DATABASE_URL` | Demo database |
+| `SHERLOCK_AGENT_MODE` | Demo or live mode |
+| `SHERLOCK_AUTH_ENABLED` | Authentication control |
+| `SHERLOCK_ANALYST_USERNAME` | Analyst username for password recovery |
+| `SHERLOCK_SESSION_TTL_SECONDS` | Session expiration |
+| `SHERLOCK_SECURE_COOKIES` | Secure cookie configuration |
+| `SHERLOCK_LLM_MODEL` | Optional CrewAI model |
+| `SHERLOCK_VIRUSTOTAL_API_KEY` | VirusTotal integration |
+| `SHERLOCK_ABUSEIPDB_API_KEY` | AbuseIPDB integration |
+| `SHERLOCK_OTX_API_KEY` | AlienVault OTX integration |
+| `SHERLOCK_URLHAUS_AUTH_KEY` | URLhaus integration |
+
+Additional settings for rate limits, import size, CORS, and login throttling are available in `.env.example`.
+
+Never commit real API credentials or sensitive telemetry.
+
+---
+
+## Testing
 
 ### Backend
 
+Run from the backend directory:
+
 ```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent
-py -3.12 -m venv .venv
-& .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+$env:SHERLOCK_AUTH_ENABLED = "false"
+
+& ..\.venv\Scripts\python.exe -m pytest -q
 ```
 
 ### Frontend
 
-```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent\frontend
-npm install
-```
-
-## Environment configuration
-
-Copy `.env.example` to `.env` only for local configuration. Never commit real
-credentials, API keys, or tokens.
-
-Important backend variables:
-
-- `SHERLOCK_DATABASE_URL`: defaults to the local SQLite database.
-- `SHERLOCK_CORS_ORIGINS`: comma-separated trusted browser origins.
-- `SHERLOCK_MAX_IMPORT_BYTES`: maximum event import body size; defaults to 5 MiB.
-- `SHERLOCK_AUTH_ENABLED`: enables analyst authentication; defaults to `true`.
-- `SHERLOCK_ANALYST_USERNAME`: legacy analyst account identifier used for
-  password recovery. On first installation, create an administrator through
-  the hidden-input CLI bootstrap instead.
-- `SHERLOCK_SESSION_TTL_SECONDS`: analyst session lifetime.
-- `SHERLOCK_SECURE_COOKIES`: set to `true` when serving over HTTPS.
-- `SHERLOCK_LLM_MODEL`: required only when invoking real CrewAI providers.
-
-Provider credentials must be supplied through the provider's documented
-environment variables. This repository does not contain or require secrets for
-the automated test suite.
-
-## Start the backend
+Run from the frontend directory:
 
 ```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent\backend
-& ..\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-On first installation, create the initial administrator:
-
-```powershell
-& ..\.venv\Scripts\python.exe -m app.cli bootstrap-admin --username admin
-```
-
-Unauthenticated demo pages remain read-only. Sign in from **Settings** before
-importing events or starting an investigation.
-
-Verify:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-```
-
-## Start the frontend
-
-In a second PowerShell window:
-
-```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent\frontend
-npm run dev -- --host 127.0.0.1
-```
-
-Open `http://127.0.0.1:5173`.
-
-The Vite development proxy forwards `/health` and `/api` requests to the local
-FastAPI server.
-
-## Demonstration workflow
-
-With both servers running, sign in from **Settings** using the configured
-analyst credentials. Public demo pages use the separate synthetic database and
-cannot import or investigate.
-
-Import the sanitized sample as an authenticated analyst:
-
-```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent
-$credentials = @{ username = "analyst"; password = $env:SHERLOCK_ANALYST_PASSWORD } |
-  ConvertTo-Json
-Invoke-RestMethod `
-  -Uri http://127.0.0.1:8000/api/v1/auth/login `
-  -Method Post `
-  -ContentType "application/json" `
-  -Body $credentials `
-  -SessionVariable session
-$sample = Get-Content .\data\samples\sysmon_events.json -Raw
-Invoke-RestMethod `
-  -Uri http://127.0.0.1:8000/api/v1/events/import `
-  -Method Post `
-  -ContentType "application/json" `
-  -Body $sample `
-  -WebSession $session
-```
-
-The sample contains:
-
-- One normal PowerShell event that does not alert.
-- One encoded-command PowerShell event.
-- One multi-indicator PowerShell event.
-- One unrelated process event.
-
-View the resulting alerts:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/v1/alerts -WebSession $session
-```
-
-Run an investigation for the high-severity simulated alert:
-
-```powershell
-$alertId = "SOC-001-simulated-003"
-$report = Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8000/api/v1/alerts/$alertId/investigate" `
-  -Method Post `
-  -WebSession $session
-$report | ConvertTo-Json -Depth 10
-```
-
-Retrieve the persisted report:
-
-```powershell
-Invoke-RestMethod `
-  -Uri "http://127.0.0.1:8000/api/v1/investigations/$($report.investigation_id)" `
-  -WebSession $session
-```
-
-The three specialist execution statuses, component scoring metrics, evidence
-references, findings, and unknown intelligence results are shown from the
-backend response and the persisted investigation workspace.
-
-## API summary
-
-- `GET /health`
-- `POST /api/v1/auth/login`
-- `GET /api/v1/auth/me`
-- `POST /api/v1/auth/logout`
-- `POST /api/v1/events/import`
-- `GET /api/v1/events`
-- `GET /api/v1/alerts`
-- `GET /api/v1/alerts/{alert_id}`
-- `POST|GET /api/v1/alerts/{alert_id}/triage`
-- `POST /api/v1/alerts/{alert_id}/forensics`
-- `POST|GET /api/v1/alerts/{alert_id}/threat-intelligence`
-- `POST /api/v1/alerts/{alert_id}/investigate`
-- `GET /api/v1/investigations/{investigation_id}`
-- `GET /api/v1/investigations/summary`
-- `GET /api/v1/alerts/{alert_id}/investigations`
-- `GET /api/v1/validation/rules`
-- `GET /api/v1/validation/datasets`
-- `POST /api/v1/validation/runs`
-- `GET /api/v1/validation/runs`
-- `GET /api/v1/validation/runs/{run_id}/report`
-
-## Testing
-
-Backend:
-
-```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent\backend
-& ..\.venv\Scripts\python.exe -m pytest -q
-& ..\.venv\Scripts\python.exe -m compileall -q app tests
-```
-
-Frontend:
-
-```powershell
-Set-Location L:\DOWNLOADS\SOC_Agent\frontend
 npm run typecheck
+
 npm run build
-npm audit
 ```
 
-Automated tests use mocked providers and do not make paid LLM calls.
+### CI/CD
 
-## Security limitations
+GitHub Actions performs backend testing, frontend type checking, and production build validation on pushes and pull requests.
 
-The public demo is read-only and uses a separate synthetic SQLite database.
-Analyst writes and authenticated reads use the analyst SQLite database.
-Authentication uses scrypt password hashes and expiring HttpOnly sessions.
-The API has explicit configured CORS origins, request-size limits, security
-headers, strict Pydantic validation, evidence-reference validation, and no
-shell/remediation capabilities. Model-generated text is rendered as escaped
-React text rather than raw HTML.
+---
 
-The current React Router 6 line retains two moderate audit findings. Removing
-them requires a React Router 7 migration, which is outside this stabilization
-milestone. Vite/PostCSS development dependencies were updated to compatible
-secure releases; do not expose the Vite development server publicly.
+## Security and Limitations
 
-## Known limitations
+SHERLOCK includes local authentication, Scrypt password hashing, server-side session hashes, HttpOnly cookies, login throttling, configurable CORS, and structured investigation validation.
 
-- SQLite is intended for the MVP and local demonstration.
-- Detection Rule Match Strength, Evidence Completeness, and Threat Assessment
-  are exposed as separate report metrics; unknown intelligence is shown as
-  insufficient evidence rather than a fabricated percentage.
-- Real LLM verification requires a configured provider and credentials.
-- The default Threat Intelligence provider is a mock provider.
-- Investigation history currently stores one stable current report per alert.
-## Operating modes
+However, the current implementation has important limitations:
 
-The backend defaults to `SHERLOCK_AGENT_MODE=demo`. Demo mode uses deterministic,
-evidence-backed mock providers and never calls an LLM or external intelligence
-service. Set `SHERLOCK_AGENT_MODE=live` and configure `SHERLOCK_LLM_MODEL` to use
-the existing CrewAI-backed providers; there is no fallback from live to demo.
-Restart the backend after changing the setting. The current mode is available
-from `GET /api/v1/runtime/mode` and is shown in the dashboard.
-## Detection Validation Lab
+- SQLite-based, single-instance architecture.
+- Three implemented detection rules.
+- Limited cross-event correlation.
+- Synthetic-data-based detection validation.
+- In-process caching and rate limiting.
+- No enterprise SSO, MFA, or multi-tenancy.
+- A known authorization gap in alert-lifecycle write endpoints.
 
-Authenticated analysts can run the versioned synthetic SOC-001 validation set from
-**Detection Validation Lab**. The lab executes the same deterministic evaluator used
-by alert generation, then reports TP, FP, FN, TN, precision, recall, F1, specificity,
-and accuracy. Runs are stored as report JSON in a separate validation-history table;
-the workflow does not import events, create alerts, invoke agents, or alter detection
-rules. Results describe the labelled synthetic set only and are not a claim of
-real-world detection performance.
-=======
-# Sherlock-SOC
-AI-assisted SOC platform featuring behavioural threat detection, MITRE ATT&amp;CK mapping, multi-agent investigation, threat intelligence, digital forensics, evidence graphs, attack storyline reconstruction, and detection validation.
->>>>>>> origin/main
+Live threat-intelligence lookups may transmit extracted indicators to external providers. LLM-backed investigation may transmit event content, including raw payloads, to the configured model provider.
+
+**Do not expose this prototype to untrusted networks or process sensitive telemetry without appropriate authorization and security review.**
+
+---
+
+## Future Improvements
+
+Planned development includes:
+
+- Expanded Sysmon event coverage and detection rules.
+- Cross-batch and host-aware event correlation.
+- Improved detection validation datasets.
+- Complete threat-intelligence provider integration.
+- Stronger API authorization and access controls.
+- Persistent caching and database migration support.
+- Additional investigation and reporting capabilities.
+
+---
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE) for details.
+
+**Author:** Lokith Duraisamy
+
+[GitHub](https://github.com/lokilokith) · [LinkedIn](https://www.linkedin.com/in/lokith-cybersec/) · [Portfolio](https://lokith-portfolio-vvnm-two.vercel.app/)
